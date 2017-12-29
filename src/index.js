@@ -9,7 +9,7 @@ app.controller('myCtrl', [ '$scope', function($scope) {
 	
 	$scope.result = function(){
 		try{
-			return parse(postfix(tokenize($scope.input)));
+			return tokenize($scope.input);
 		} catch(err){
 			return err; 
 		}
@@ -19,17 +19,20 @@ app.controller('myCtrl', [ '$scope', function($scope) {
 var lexer;
 var parser;
 var operator;
-setupParser();
+setup();
 
-function setupParser(){
+function setup(){
 	lexer = new Lexer;
 	lexer.addRule(/\s+/, function () {
 		// skip whitespace
 	});
-	lexer.addRule(/[a-z]/, function (lexeme) {
-		return lexeme;
+	lexer.addRule(/\d+(\.\d+)?/, function (lexeme) {
+		return lexeme; // numbers
 	});
-	lexer.addRule(/[\(\+\-\*\/\)]/, function (lexeme) {
+	lexer.addRule(/[a-zA-Z_]+\w*/, function (lexeme) {
+		return lexeme; // words
+	});
+	lexer.addRule(/[\(\+\-\*\/\^\)]/, function (lexeme) {
 		 return lexeme; // punctuation
 	});
 	var factor = {
@@ -63,12 +66,12 @@ function tokenize(input){
 	return tokens;
 }
 
-//step 2: parse tokens to postfix notation
+//step 2: convert tokens to postfix notation
 function postfix(tokens){
 	return parser.parse(tokens);
 }
 
-//step 3: parse postfix
+//step 3: parse tokens in postfix notation
 function parse(postfix){
 	var stack = [];
 	postfix.forEach(function (c){
