@@ -1,7 +1,7 @@
 'use strict';
 var angular = require('angular');
 var Lexer = require('lex');
-var Parser = require('./shunt.js');
+var Shunt = require('./shunt.js');
 
 var app = angular.module('myApp', []);
 app.controller('myCtrl', [ '$scope', function($scope) {
@@ -9,7 +9,7 @@ app.controller('myCtrl', [ '$scope', function($scope) {
 	
 	$scope.result = function(){
 		try{
-			return tokenize($scope.input);
+			return parse(postfix(tokenize($scope.input)));
 		} catch(err){
 			return err; 
 		}
@@ -17,7 +17,7 @@ app.controller('myCtrl', [ '$scope', function($scope) {
 }]);
 
 var lexer;
-var parser;
+var shunt;
 var operator;
 setup();
 
@@ -33,27 +33,33 @@ function setup(){
 		return lexeme; // words
 	});
 	lexer.addRule(/[\(\+\-\*\/\^\)]/, function (lexeme) {
-		 return lexeme; // punctuation
+		 return lexeme; // operators
 	});
-	var factor = {
-		precedence: 2,
-		associativity: "left"
-	};
 	var term = {
 		precedence: 1,
 		associativity: "left"
 	};
-	parser = new Parser({
+	var factor = {
+		precedence: 2,
+		associativity: "left"
+	};
+	var exponent = {
+		precedence: 3,
+		associativity: "right"
+	}
+	shunt = new Shunt({
 		"+": term,
 		"-": term,
 		"*": factor,
-		"/": factor
+		"/": factor,
+		"^": exponent
 	});
-	operator = {
+	operator = { //name and type
 		"+": "add",
 		"-": "subtract",
 		"*": "multiply",
-		"/": "divide"
+		"/": "divide",
+		"^": "pow"
 	};
 }
 
@@ -68,7 +74,7 @@ function tokenize(input){
 
 //step 2: convert tokens to postfix notation
 function postfix(tokens){
-	return parser.parse(tokens);
+	return shunt.parse(tokens);
 }
 
 //step 3: parse tokens in postfix notation
@@ -80,6 +86,7 @@ function parse(postfix){
 		case "-":
 		case "*":
 		case "/":
+		case "^":
 			var b = stack.pop();
 			var a = stack.pop();
 			if(a == undefined)
