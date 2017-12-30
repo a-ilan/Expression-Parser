@@ -83,7 +83,7 @@ Parser.prototype.parsePostfix = function(postfix){
 				var b = stack.pop();
 				stack.push(operator[token].name + "(" + b + ")");
 			} else {
-				throw new Error("Invalid operator: " + token);
+				throw new Error("Unexpected token: \"" + token + "\"");
 			}
 		} else if(compare(regEx.number,token)){
 			stack.push(num+"("+token+")");
