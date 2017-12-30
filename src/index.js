@@ -4,7 +4,7 @@ var Parser = require('./parser.js');
 
 var app = angular.module('myApp', []);
 app.controller('myCtrl', [ '$scope', function($scope) {
-	$scope.input = '';
+	$scope.input = '9-(x+8)^-7.6';
 	
 	$scope.result = function(){
 		try{
@@ -18,37 +18,49 @@ app.controller('myCtrl', [ '$scope', function($scope) {
 var regEx = {
 	number: /\d+(\.\d+)?/,
 	word: /[a-zA-Z_]+\w*/,
-	operator: /[\(\+\-\*\/\^\)]/
+	operator: /([\(\+\-\*\/\^\)]|neg|pos)/
 }
 
 var operator = {
 	"+": { //term
 		name: "add",
-		type: "binary",
+		type: 'binary',
 		precedence: 1,
 		associativity: "left"
 	},
 	"-": { //term
-		name: "subtract",
-		type: "binary",
+		name: "sub",
+		type: 'binary',
 		precedence: 1,
 		associativity: "left"
 	},
 	"*": { //factor
-		name: "multiply",
-		type: "binary",
+		name: "mul",
+		type: 'binary',
 		precedence: 2,
 		associativity: "left"
 	},
 	"/": { //factor
-		name: "divide",
-		type: "binary",
+		name: "div",
+		type: 'binary',
 		precedence: 2,
 		associativity: "left"
 	},
 	"^": { //exponent
 		name: "pow",
-		type: "binary",
+		type: 'binary',
+		precedence: 3,
+		associativity: "right"
+	},
+	"neg":{
+		name: "neg",
+		type: 'unary',
+		precedence: 3,
+		associativity: "right"
+	},
+	"pos":{
+		name: "pos",
+		type: 'unary',
 		precedence: 3,
 		associativity: "right"
 	}
