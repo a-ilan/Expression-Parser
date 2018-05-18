@@ -1,5 +1,3 @@
-Demo: https://tiilan.github.io/Expression-Parser/dist/
-
 ### To run
 ``` bash
 npm install        # install dependencies
